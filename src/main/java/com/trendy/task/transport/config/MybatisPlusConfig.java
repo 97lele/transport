@@ -1,13 +1,14 @@
 package com.trendy.task.transport.config;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
-
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.extension.parsers.DynamicTableNameParser;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.trendy.task.transport.config.dyma.*;
+import com.trendy.task.transport.handler.DefaultFieldValueHandler;
 import com.trendy.task.transport.handler.FieldHandler;
 import com.trendy.task.transport.util.MapperMap;
 import org.apache.ibatis.plugin.Interceptor;
@@ -15,19 +16,14 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
+
 
 import javax.sql.DataSource;
 import java.util.Collections;
@@ -66,7 +62,7 @@ public class MybatisPlusConfig {
     public FieldHandler fieldHandler() {
         FieldHandler f = new FieldHandler();
         DynamicTableNameParser t = new DynamicTableNameParser();
-        if(MapperMap.tableNameHandlerMap==null){
+        if (MapperMap.tableNameHandlerMap == null) {
             MapperMap.init();
         }
         t.setTableNameHandlerMap(MapperMap.tableNameHandlerMap);
@@ -88,6 +84,24 @@ public class MybatisPlusConfig {
     }
 
     @Bean
+    DefaultFieldValueHandler defaultFieldValueHandler() {
+        return new DefaultFieldValueHandler();
+    }
+
+    @Bean
+    public GlobalConfig globalConfig() {
+        GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.setBanner(false);
+       /* GlobalConfig.DbConfig dbConfig = new GlobalConfig.DbConfig();
+        dbConfig.setIdType(IdType.ID_WORKER);*/
+//        dbConfig.setTablePrefix("gg");
+        globalConfig.setMetaObjectHandler(defaultFieldValueHandler());
+//        globalConfig.setDbConfig(dbConfig);
+        return globalConfig;
+    }
+
+
+    @Bean
     DynamicDataSourceInterceptor dynamicDataSourceInterceptor() {
         return new DynamicDataSourceInterceptor();
     }
@@ -107,22 +121,29 @@ public class MybatisPlusConfig {
         configuration.setMapUnderscoreToCamelCase(true);
         configuration.setUseGeneratedKeys(true);
         configuration.setCacheEnabled(false);
+        configuration.setGlobalConfig(globalConfig());
         sqlSessionFactory.setConfiguration(configuration);
-//加入上面的两个拦截器
+//加入拦截器
         Interceptor interceptor[] = {dynamicDataSourceInterceptor(), fieldHandler(), paginationInterceptor()};
         sqlSessionFactory.setPlugins(interceptor);
         return sqlSessionFactory.getObject();
     }
 
 
-
     @Bean
-    public DataSourceTransactionManager MySqlTran(){
+    public DataSourceTransactionManager MySqlTran() {
         return new DataSourceTransactionManager(mysql());
     }
 
     @Bean
-    public DataSourceTransactionManager PgSqlTran(){
-        return  new DataSourceTransactionManager(pgsql());
+    public DataSourceTransactionManager PgSqlTran() {
+        return new DataSourceTransactionManager(pgsql());
     }
+
+    @Bean
+    @Primary
+    public DataSourceTransactionManager transactionManager(DynamicDataSource dataSource) throws Exception {
+        return new DataSourceTransactionManager(dataSource);
+    }
+
 }

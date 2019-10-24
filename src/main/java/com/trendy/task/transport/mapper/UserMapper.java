@@ -2,12 +2,8 @@ package com.trendy.task.transport.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.trendy.task.transport.config.dyma.DBType;
-import com.trendy.task.transport.config.dyma.DynamicDataSourceHolder;
-import com.trendy.task.transport.config.dyma.annotations.TranDB;
-import com.trendy.task.transport.config.dyma.annotations.TranTable;
+import com.trendy.task.transport.annotations.TranDB;
 import com.trendy.task.transport.model.User;
-
-import java.io.Serializable;
 
 /**
  * @author: lele

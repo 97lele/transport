@@ -1,7 +1,7 @@
 package com.trendy.task.transport.config.dyma;
 
 
-import com.trendy.task.transport.config.dyma.annotations.TranDB;
+import com.trendy.task.transport.annotations.TranDB;
 import com.trendy.task.transport.util.MapperMap;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -10,9 +10,6 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.Properties;
 
 /**

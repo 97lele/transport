@@ -20,6 +20,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author: lele
@@ -37,24 +38,30 @@ public class UserMapperTest {
     @Qualifier("PgSqlTran")
     private DataSourceTransactionManager pgsql;
 
-    @Test
 
+
+    @Test
     public void selectById() {
-        List<User> userList=null;
-        DefaultTransactionDefinition c1=new DefaultTransactionDefinition();
-        c1.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        TransactionStatus status2 = pgsql.getTransaction(c1);
-        try{
-           userList  =  userService.list();
-        }catch (Exception e){
-            System.out.println(e);
-            status2.setRollbackOnly();
-        }
-        DefaultTransactionDefinition c=new DefaultTransactionDefinition();
+        List<User> userList=userService.list();
+      /*  DefaultTransactionDefinition c=new DefaultTransactionDefinition();
         c.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
         TransactionStatus status = mysql.getTransaction(c);
         try{
+
             userService.saveBatch(userList);
+        }catch (Exception e){
+            System.out.println(e);
+            status.setRollbackOnly();
+        }*/
+     excute( userList, e->userService.saveBatch(e),mysql);
+    }
+
+    void excute(List list,Consumer<List> comsumer,DataSourceTransactionManager manager){
+        DefaultTransactionDefinition c=new DefaultTransactionDefinition();
+        c.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        TransactionStatus status = manager.getTransaction(c);
+        try{
+            comsumer.accept(list);
         }catch (Exception e){
             System.out.println(e);
             status.setRollbackOnly();

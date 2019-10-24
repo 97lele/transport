@@ -1,14 +1,9 @@
 package com.trendy.task.transport.handler;
 
-import com.baomidou.mybatisplus.core.parser.ISqlParser;
-import com.baomidou.mybatisplus.core.parser.SqlInfo;
 import com.baomidou.mybatisplus.core.toolkit.PluginUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.handlers.AbstractSqlParserHandler;
-import com.baomidou.mybatisplus.extension.parsers.ITableNameHandler;
-import com.trendy.task.transport.config.dyma.annotations.TranDB;
-import com.trendy.task.transport.config.dyma.annotations.TranField;
-import com.trendy.task.transport.config.dyma.annotations.TranTable;
+import com.trendy.task.transport.annotations.TranDB;
+import com.trendy.task.transport.annotations.TranField;
 import com.trendy.task.transport.util.CamelHumpUtils;
 import com.trendy.task.transport.util.MapperMap;
 import org.apache.ibatis.executor.statement.StatementHandler;
@@ -23,7 +18,6 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

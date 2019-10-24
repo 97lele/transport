@@ -1,4 +1,4 @@
-package com.trendy.task.transport.config.dyma.annotations;
+package com.trendy.task.transport.annotations;
 
 import com.trendy.task.transport.config.dyma.DBType;
 

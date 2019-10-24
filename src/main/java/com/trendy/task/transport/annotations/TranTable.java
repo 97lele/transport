@@ -1,4 +1,4 @@
-package com.trendy.task.transport.config.dyma.annotations;
+package com.trendy.task.transport.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,12 +7,12 @@ import java.lang.annotation.Target;
 
 /**
  * @author: lele
- * @date: 2019/10/23 下午5:48
+ * @date: 2019/10/23 下午5:50
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface TranField {
-    String from() default "";
+@Target(ElementType.TYPE)
+public @interface TranTable {
+    String from();
     String to();
 
 }

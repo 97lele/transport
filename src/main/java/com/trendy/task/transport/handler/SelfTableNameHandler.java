@@ -1,7 +1,7 @@
 package com.trendy.task.transport.handler;
 
 import com.baomidou.mybatisplus.extension.parsers.ITableNameHandler;
-import com.trendy.task.transport.config.dyma.annotations.TranTable;
+import com.trendy.task.transport.annotations.TranTable;
 import org.apache.ibatis.reflection.MetaObject;
 
 /**
