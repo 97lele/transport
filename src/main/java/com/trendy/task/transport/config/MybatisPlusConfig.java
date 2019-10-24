@@ -26,6 +26,7 @@ import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,13 +64,16 @@ public class MybatisPlusConfig {
         FieldHandler f = new FieldHandler();
         DynamicTableNameParser t = new DynamicTableNameParser();
         if (MapperMap.tableNameHandlerMap == null) {
-            MapperMap.init();
+            try {
+                MapperMap.init();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         t.setTableNameHandlerMap(MapperMap.tableNameHandlerMap);
         f.setSqlParserList(Collections.singletonList(t));
         return f;
     }
-
 
     @Primary
     @Bean(name = "dynamicDataSource")
@@ -92,11 +96,7 @@ public class MybatisPlusConfig {
     public GlobalConfig globalConfig() {
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setBanner(false);
-       /* GlobalConfig.DbConfig dbConfig = new GlobalConfig.DbConfig();
-        dbConfig.setIdType(IdType.ID_WORKER);*/
-//        dbConfig.setTablePrefix("gg");
         globalConfig.setMetaObjectHandler(defaultFieldValueHandler());
-//        globalConfig.setDbConfig(dbConfig);
         return globalConfig;
     }
 
@@ -121,11 +121,12 @@ public class MybatisPlusConfig {
         configuration.setMapUnderscoreToCamelCase(true);
         configuration.setUseGeneratedKeys(true);
         configuration.setCacheEnabled(false);
-        configuration.setGlobalConfig(globalConfig());
         sqlSessionFactory.setConfiguration(configuration);
 //加入拦截器
         Interceptor interceptor[] = {dynamicDataSourceInterceptor(), fieldHandler(), paginationInterceptor()};
         sqlSessionFactory.setPlugins(interceptor);
+        //设置全局配置
+        sqlSessionFactory.setGlobalConfig(globalConfig());
         return sqlSessionFactory.getObject();
     }
 
