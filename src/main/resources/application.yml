@@ -1,0 +1,20 @@
+
+logging:
+  level:
+   com.trendy.task.transport: debug
+tran:
+ mapperlocation:
+
+spring:
+  datasource:
+    mysql:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/user_center?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      username: root
+      password: abc123@@
+    pgsql:
+      driver-class-name: org.postgresql.Driver
+      jdbc-url: jdbc:postgresql://localhost:5432/test?allowMultiQueries=true&characterEncoding=UTF-8&useSSL=false
+      username: postgres
+      password: 123456
+
