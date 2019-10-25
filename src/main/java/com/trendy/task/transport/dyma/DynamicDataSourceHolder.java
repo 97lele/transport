@@ -1,4 +1,4 @@
-package com.trendy.task.transport.config.dyma;
+package com.trendy.task.transport.dyma;
 
 /**
  * @author: lele
@@ -6,8 +6,6 @@ package com.trendy.task.transport.config.dyma;
  */
 public class DynamicDataSourceHolder {
     private static ThreadLocal<DBType> dbTypeHolder=new ThreadLocal<>();
-
-
     public static DBType getType(){
         return dbTypeHolder.get();
     }

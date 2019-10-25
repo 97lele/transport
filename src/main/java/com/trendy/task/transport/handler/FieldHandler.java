@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.toolkit.PluginUtils;
 import com.baomidou.mybatisplus.extension.handlers.AbstractSqlParserHandler;
 import com.trendy.task.transport.annotations.TranDB;
 import com.trendy.task.transport.annotations.TranField;
+import com.trendy.task.transport.config.MapperAuxFeatureMap;
 import com.trendy.task.transport.util.CamelHumpUtils;
-import com.trendy.task.transport.util.MapperMap;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -43,8 +43,11 @@ import java.util.Map;
         )
 })
 public class FieldHandler extends AbstractSqlParserHandler implements Interceptor {
+    private MapperAuxFeatureMap mapperAuxFeatureMap;
 
-
+    public FieldHandler(MapperAuxFeatureMap mapperAuxFeatureMap) {
+        this.mapperAuxFeatureMap = mapperAuxFeatureMap;
+    }
 
     @Override
     public Object plugin(Object target) {
@@ -53,40 +56,32 @@ public class FieldHandler extends AbstractSqlParserHandler implements Intercepto
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
-        StatementHandler statementHandler = (StatementHandler) PluginUtils.realTarget(invocation.getTarget());
+        StatementHandler statementHandler =  PluginUtils.realTarget(invocation.getTarget());
         MetaObject metaObject = SystemMetaObject.forObject(statementHandler);
         super.sqlParser(metaObject);
         MappedStatement mappedStatement = (MappedStatement) metaObject.getValue("delegate.mappedStatement");
         BoundSql boundSql = (BoundSql) metaObject.getValue("delegate.boundSql");
         Boolean select = mappedStatement.getSqlCommandType().equals(SqlCommandType.SELECT);
-        String sql = boundSql.getSql();
-        String source = mappedStatement.getId();
-        int end = source.lastIndexOf(".") + 1;
-        String mapper = source.substring(0, end - 1);
-        mapper = mapper.substring(mapper.lastIndexOf(".") + 1);
-        TranDB tranDB =  MapperMap.mapperMap.get(mapper);
-        Class clazz=tranDB.object();
-        Map<String, Field> mapField = new HashMap<>();
-        while (!clazz.equals(Object.class)) {
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                mapField.put(field.getName(), field);
-            }
-            clazz = clazz.getSuperclass();
-        }
-        //如果是查询，把符合该类里面的字段更新为fromField,并把表名更改
-        if (select) {
-            for (Map.Entry<String, Field> entry : mapField.entrySet()) {
-                String sqlFieldName = CamelHumpUtils.humpToLine(entry.getKey());
-                if (sql.contains(sqlFieldName)) {
-                    String from = entry.getValue().getAnnotation(TranField.class).from();
-                    if(!from.equals(sqlFieldName)&&!from.isEmpty()){
-                        sql = sql.replaceAll(sqlFieldName, from);
-                    }
+        if (!select) {
+            //通过获取mapper名称从缓存类中获取对应的注解
+            String source = mappedStatement.getId();
+            int end = source.lastIndexOf(".") + 1;
+            String mapper = source.substring(0, end - 1);
+            mapper = mapper.substring(mapper.lastIndexOf(".") + 1);
+            TranDB tranDB = mapperAuxFeatureMap.mapperTranDbMap.get(mapper);
+           //获取类的所有属性
+            Class clazz = tranDB.object();
+            Map<String, Field> mapField = new HashMap<>(clazz.getFields().length);
+            while (!clazz.equals(Object.class)) {
+                Field[] fields = clazz.getDeclaredFields();
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    mapField.put(field.getName(), field);
                 }
+                clazz = clazz.getSuperclass();
             }
-        } else {
+            //替换sql
+            String sql = boundSql.getSql();
             for (Map.Entry<String, Field> entry : mapField.entrySet()) {
                 String sqlFieldName = CamelHumpUtils.humpToLine(entry.getKey());
                 if (sql.contains(sqlFieldName)) {
@@ -94,9 +89,8 @@ public class FieldHandler extends AbstractSqlParserHandler implements Intercepto
                     sql = sql.replaceAll(sqlFieldName, from);
                 }
             }
+            metaObject.setValue("delegate.boundSql.sql", sql);
         }
-
-        metaObject.setValue("delegate.boundSql.sql", sql);
         return invocation.proceed();
     }
 }

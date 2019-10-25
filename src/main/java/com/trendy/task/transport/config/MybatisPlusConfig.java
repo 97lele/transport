@@ -5,10 +5,9 @@ import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.extension.parsers.DynamicTableNameParser;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
-import com.trendy.task.transport.config.dyma.*;
+import com.trendy.task.transport.dyma.*;
 import com.trendy.task.transport.handler.DefaultFieldValueHandler;
 import com.trendy.task.transport.handler.FieldHandler;
-import com.trendy.task.transport.util.MapperMap;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.JdbcType;
@@ -55,19 +54,16 @@ public class MybatisPlusConfig {
         return p;
     }
 
+    @Bean
+    public MapperAuxFeatureMap mapperAuxFeatureMap() {
+        return new MapperAuxFeatureMap();
+    }
 
     @Bean
     public FieldHandler fieldHandler() {
-        FieldHandler f = new FieldHandler();
+        FieldHandler f = new FieldHandler(mapperAuxFeatureMap());
         DynamicTableNameParser t = new DynamicTableNameParser();
-        if (MapperMap.tableNameHandlerMap == null) {
-            try {
-                MapperMap.init();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        t.setTableNameHandlerMap(MapperMap.tableNameHandlerMap);
+        t.setTableNameHandlerMap(mapperAuxFeatureMap().tableNameHandlerMap);
         f.setSqlParserList(Collections.singletonList(t));
         return f;
     }
@@ -98,10 +94,9 @@ public class MybatisPlusConfig {
     }
 
 
-
     @Bean
     DynamicDataSourceInterceptor dynamicDataSourceInterceptor() {
-        return new DynamicDataSourceInterceptor();
+        return new DynamicDataSourceInterceptor(mapperAuxFeatureMap());
     }
 
     @Bean(name = "SqlSessionFactory")
@@ -121,7 +116,7 @@ public class MybatisPlusConfig {
         configuration.setCacheEnabled(false);
         sqlSessionFactory.setConfiguration(configuration);
 //加入拦截器
-        Interceptor[] interceptors = {dynamicDataSourceInterceptor(), paginationInterceptor(),fieldHandler()};
+        Interceptor[] interceptors = {dynamicDataSourceInterceptor(), paginationInterceptor(), fieldHandler()};
         sqlSessionFactory.setPlugins(interceptors);
         //设置全局配置
         sqlSessionFactory.setGlobalConfig(globalConfig());
@@ -139,7 +134,6 @@ public class MybatisPlusConfig {
     public DataSourceTransactionManager PgSqlTran() {
         return new DataSourceTransactionManager(pgsql());
     }
-
 
 
 }

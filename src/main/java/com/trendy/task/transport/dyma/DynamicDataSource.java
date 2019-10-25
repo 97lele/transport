@@ -1,7 +1,5 @@
-package com.trendy.task.transport.config.dyma;
+package com.trendy.task.transport.dyma;
 
-import com.baomidou.mybatisplus.annotation.DbType;
-import com.baomidou.mybatisplus.extension.parsers.DynamicTableNameParser;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 /**

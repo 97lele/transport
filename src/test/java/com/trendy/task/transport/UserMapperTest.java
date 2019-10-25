@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * @author: lele
@@ -42,10 +44,14 @@ private DataSource dataSource;
     public void selectById() {
         List<User> userList = userService.list(new LambdaQueryWrapper<User>().select(User::getUserId,User::getMobile,User::getUserAccount,User::getTest));
         User u=userList.get(3);
-        u.setTest(new String[]{"1","2"});
         userService.save(u);
         //excute( userList, e->userService.save(e),mysql);
     }
+
+    @Test
+    public void test(){
+    }
+
 
    /* void excute(List list,Consumer<List> comsumer,DataSourceTransactionManager manager){
         DefaultTransactionDefinition c=new DefaultTransactionDefinition();
@@ -61,9 +67,6 @@ private DataSource dataSource;
 
     }*/
 
-    public static void main(String[] args) throws IOException {
 
-
-    }
 
 }

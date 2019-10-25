@@ -8,6 +8,7 @@ import java.util.Date;
 /**
  * @author lulu
  * @Date 2019/10/24 23:15
+ * 自动填充的handler
  */
 
 public class DefaultFieldValueHandler implements MetaObjectHandler {

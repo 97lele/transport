@@ -1,6 +1,6 @@
 package com.trendy.task.transport.annotations;
 
-import com.trendy.task.transport.config.dyma.DBType;
+import com.trendy.task.transport.dyma.DBType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

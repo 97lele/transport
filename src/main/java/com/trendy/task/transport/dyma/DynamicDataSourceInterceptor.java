@@ -1,8 +1,8 @@
-package com.trendy.task.transport.config.dyma;
+package com.trendy.task.transport.dyma;
 
 
 import com.trendy.task.transport.annotations.TranDB;
-import com.trendy.task.transport.util.MapperMap;
+import com.trendy.task.transport.config.MapperAuxFeatureMap;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -23,6 +23,11 @@ import java.util.Properties;
 })
 public class DynamicDataSourceInterceptor implements Interceptor {
 
+    private MapperAuxFeatureMap mapperAuxFeatureMap;
+
+    public DynamicDataSourceInterceptor(MapperAuxFeatureMap mapperAuxFeatureMap) {
+        this.mapperAuxFeatureMap = mapperAuxFeatureMap;
+    }
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
@@ -34,7 +39,7 @@ public class DynamicDataSourceInterceptor implements Interceptor {
         int end = source.lastIndexOf(".") + 1;
         String mapper = source.substring(0, end - 1);
         mapper = mapper.substring(mapper.lastIndexOf(".") + 1);
-        TranDB tranDB =  MapperMap.mapperMap.get(mapper);
+        TranDB tranDB = mapperAuxFeatureMap.mapperTranDbMap.get(mapper);
 
         if (statement.getSqlCommandType().equals(SqlCommandType.SELECT)) {
             db = tranDB.from();

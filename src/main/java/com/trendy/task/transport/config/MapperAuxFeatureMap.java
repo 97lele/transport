@@ -1,8 +1,11 @@
-package com.trendy.task.transport.util;
+package com.trendy.task.transport.config;
 
 import com.baomidou.mybatisplus.extension.parsers.ITableNameHandler;
 import com.trendy.task.transport.annotations.TranDB;
 import com.trendy.task.transport.handler.SelfTableNameHandler;
+import com.trendy.task.transport.util.CamelHumpUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -11,30 +14,38 @@ import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
-import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.*;
 
+/**
+ * Mapper信息缓存类
+ */
+public class MapperAuxFeatureMap implements ResourceLoaderAware, InitializingBean {
 
-public class MapperMap implements ResourceLoaderAware {
-    private MapperMap(){};
 
     private static ResourceLoader resourceLoader;
 
-    private static final String MAPPER_LOCATION ="com.trendy.task.transport.mapper";
+    @Value("${tran.mapperlocation}")
+    public   String MAPPER_LOCATION ;
 
     public static final String TABLEPREFIX="t_";
 
-    public static Map<String, ITableNameHandler> tableNameHandlerMap;
+    //表名处理
+    public  Map<String, ITableNameHandler> tableNameHandlerMap;
 
-    public static Map<String, TranDB> mapperMap;
+    //mapper文件的注解
+    public  Map<String, TranDB> mapperTranDbMap;
 
-    public static void init() throws IOException, ClassNotFoundException {
+    @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+       MapperAuxFeatureMap.resourceLoader=resourceLoader;
+    }
+    @Override
+    public void afterPropertiesSet() throws Exception {
         ResourcePatternResolver resolver = ResourcePatternUtils.getResourcePatternResolver(resourceLoader);
         MetadataReaderFactory metaReader = new CachingMetadataReaderFactory(resourceLoader);
         Resource[] resources = resolver.getResources("classpath*:"+MAPPER_LOCATION.replace(".","/")+"/**/*.class");
-        mapperMap = new HashMap<>();
+        mapperTranDbMap = new HashMap<>();
         tableNameHandlerMap = new HashMap<>();
         for (Resource r : resources) {
             MetadataReader reader = metaReader.getMetadataReader(r);
@@ -43,19 +54,11 @@ public class MapperMap implements ResourceLoaderAware {
             if (c.isAnnotationPresent(TranDB.class)) {
                 String name = c.getSimpleName();
                 TranDB tranDB = c.getAnnotation(TranDB.class);
-                mapperMap.put(name, tranDB);
+                mapperTranDbMap.put(name, tranDB);
                 String value = tranDB.object().getSimpleName();
-                tableNameHandlerMap.put(TABLEPREFIX+CamelHumpUtils.humpToLine(value),new SelfTableNameHandler(tranDB.object()));
+                tableNameHandlerMap.put(TABLEPREFIX+ CamelHumpUtils.humpToLine(value),new SelfTableNameHandler(tranDB.object()));
             }
         }
     }
-
-
-    @Override
-    public void setResourceLoader(ResourceLoader resourceLoader) {
-       MapperMap.resourceLoader=resourceLoader;
-    }
-
-
 }
 

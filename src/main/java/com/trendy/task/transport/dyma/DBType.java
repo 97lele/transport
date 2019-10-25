@@ -1,4 +1,4 @@
-package com.trendy.task.transport.config.dyma;
+package com.trendy.task.transport.dyma;
 
 /**
  * @author: lele
