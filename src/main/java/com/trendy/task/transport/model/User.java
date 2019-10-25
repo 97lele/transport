@@ -3,9 +3,11 @@ package com.trendy.task.transport.model;
 import com.baomidou.mybatisplus.annotation.*;
 import com.trendy.task.transport.annotations.TranField;
 import com.trendy.task.transport.annotations.TranTable;
-import com.trendy.task.transport.handler.DefaultFieldValueHandler;
+import com.trendy.task.transport.handler.ArrayTypeHandler;
 import com.trendy.task.transport.util.MapperMap;
 import lombok.Data;
+import lombok.experimental.Accessors;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -16,7 +18,8 @@ import java.util.Date;
 @TranTable(from = "user_info", to = "user")
 @Data
 //如果使用表名替换会把所有相关的属性都替换，所以要用这个注解
-@TableName(MapperMap.TABLEPREFIX + "user")
+@TableName(value = MapperMap.TABLEPREFIX + "user",autoResultMap = true)
+@Accessors(chain = true)
 public class User {
 
     @TranField(to = "id")
@@ -38,6 +41,10 @@ public class User {
     @TranField(from=TranField.empty,to="bonus")
     @TableField(fill= FieldFill.INSERT)
     private Integer bonus;
+    @TableField(typeHandler = ArrayTypeHandler.class)
+    @TranField(from="test",to="wx_id")
+    private String[] test;
+
 
 
 }

@@ -1,7 +1,5 @@
 package com.trendy.task.transport.config;
 
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.extension.parsers.DynamicTableNameParser;
@@ -26,7 +24,6 @@ import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 
 
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,6 +98,7 @@ public class MybatisPlusConfig {
     }
 
 
+
     @Bean
     DynamicDataSourceInterceptor dynamicDataSourceInterceptor() {
         return new DynamicDataSourceInterceptor();
@@ -123,8 +121,8 @@ public class MybatisPlusConfig {
         configuration.setCacheEnabled(false);
         sqlSessionFactory.setConfiguration(configuration);
 //加入拦截器
-        Interceptor interceptor[] = {dynamicDataSourceInterceptor(), fieldHandler(), paginationInterceptor()};
-        sqlSessionFactory.setPlugins(interceptor);
+        Interceptor[] interceptors = {dynamicDataSourceInterceptor(), paginationInterceptor(),fieldHandler()};
+        sqlSessionFactory.setPlugins(interceptors);
         //设置全局配置
         sqlSessionFactory.setGlobalConfig(globalConfig());
         return sqlSessionFactory.getObject();
@@ -132,6 +130,7 @@ public class MybatisPlusConfig {
 
 
     @Bean
+    @Primary
     public DataSourceTransactionManager MySqlTran() {
         return new DataSourceTransactionManager(mysql());
     }
@@ -141,10 +140,6 @@ public class MybatisPlusConfig {
         return new DataSourceTransactionManager(pgsql());
     }
 
-    @Bean
-    @Primary
-    public DataSourceTransactionManager transactionManager(DynamicDataSource dataSource) throws Exception {
-        return new DataSourceTransactionManager(dataSource);
-    }
+
 
 }

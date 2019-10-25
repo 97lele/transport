@@ -1,7 +1,10 @@
 package com.trendy.task.transport;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.trendy.task.transport.model.User;
 import com.trendy.task.transport.service.UserService;
+import lombok.experimental.Accessors;
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +14,12 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -27,42 +33,33 @@ public class UserMapperTest {
     @Autowired
     private UserService userService;
     @Autowired
-    @Qualifier("MySqlTran")
     private DataSourceTransactionManager mysql;
-    @Autowired
-    @Qualifier("PgSqlTran")
-    private DataSourceTransactionManager pgsql;
-
-
+@Autowired
+@Qualifier("mysql")
+private DataSource dataSource;
 
     @Test
     public void selectById() {
-        List<User> userList=userService.list();
-      /*  DefaultTransactionDefinition c=new DefaultTransactionDefinition();
-        c.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        TransactionStatus status = mysql.getTransaction(c);
-        try{
-
-            userService.saveBatch(userList);
-        }catch (Exception e){
-            System.out.println(e);
-            status.setRollbackOnly();
-        }*/
-     excute( userList, e->userService.saveBatch(e),mysql);
+        List<User> userList = userService.list(new LambdaQueryWrapper<User>().select(User::getUserId,User::getMobile,User::getUserAccount,User::getTest));
+        User u=userList.get(3);
+        u.setTest(new String[]{"1","2"});
+        userService.save(u);
+        //excute( userList, e->userService.save(e),mysql);
     }
 
-    void excute(List list,Consumer<List> comsumer,DataSourceTransactionManager manager){
+   /* void excute(List list,Consumer<List> comsumer,DataSourceTransactionManager manager){
         DefaultTransactionDefinition c=new DefaultTransactionDefinition();
         c.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
         TransactionStatus status = manager.getTransaction(c);
         try{
             comsumer.accept(list);
+            manager.commit(status);
         }catch (Exception e){
             System.out.println(e);
-            status.setRollbackOnly();
+            manager.rollback(status);
         }
 
-    }
+    }*/
 
     public static void main(String[] args) throws IOException {
 
