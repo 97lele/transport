@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -20,6 +21,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -34,17 +36,12 @@ import java.util.function.UnaryOperator;
 public class UserMapperTest {
     @Autowired
     private UserService userService;
-    @Autowired
-    private DataSourceTransactionManager mysql;
-@Autowired
-@Qualifier("mysql")
-private DataSource dataSource;
+
 
     @Test
     public void selectById() {
         List<User> userList = userService.list(new LambdaQueryWrapper<User>().select(User::getUserId,User::getMobile,User::getUserAccount,User::getTest));
-        User u=userList.get(3);
-        userService.save(u);
+        userService.saveBatch(userList);
         //excute( userList, e->userService.save(e),mysql);
     }
 

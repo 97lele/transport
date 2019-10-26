@@ -32,15 +32,11 @@ public class DynamicDataSourceInterceptor implements Interceptor {
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         //如果读取数据，使用From的库，否则使用To库
-        DBType db = null;
+        DBType db =null;
         Object[] objects = invocation.getArgs();
         MappedStatement statement = (MappedStatement) objects[0];
-        String source = statement.getId();
-        int end = source.lastIndexOf(".") + 1;
-        String mapper = source.substring(0, end - 1);
-        mapper = mapper.substring(mapper.lastIndexOf(".") + 1);
-        TranDB tranDB = mapperAuxFeatureMap.mapperTranDbMap.get(mapper);
-
+        String mapperName = MapperAuxFeatureMap.getMapperNameFromMethodName(statement.getId());
+        TranDB tranDB = mapperAuxFeatureMap.mapperTranDbMap.get(mapperName);
         if (statement.getSqlCommandType().equals(SqlCommandType.SELECT)) {
             db = tranDB.from();
         } else {

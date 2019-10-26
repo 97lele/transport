@@ -11,6 +11,4 @@ import com.trendy.task.transport.model.User;
  */
 @TranDB(from = DBType.PGSQL,to=DBType.MYSQL,object=User.class)
 public interface UserMapper extends BaseMapper<User> {
-
-
 }

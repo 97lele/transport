@@ -2,6 +2,7 @@ package com.trendy.task.transport.handler;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
 
 import java.sql.CallableStatement;
@@ -14,9 +15,11 @@ import java.util.function.Function;
  * @author lulu
  * @Date 2019/10/25 21:46
  */
-@MappedTypes(Object[].class)
+//@MappedJdbcTypes({})表明处理哪种jdbc类型
+@MappedTypes(Object[].class)//表明处理哪种javatype
 public abstract class AbstractArrayTypeHandler<T> extends BaseTypeHandler<Object[]> {
 
+    //这里接受一个lambdah函数做转换处理
    private final Function<String,T> method;
 
     public AbstractArrayTypeHandler(Function<String,T> method){

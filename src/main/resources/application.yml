@@ -1,9 +1,9 @@
 
 logging:
   level:
-   com.trendy.task.transport: debug
+   com.trendy.task.transport.mapper: debug
 tran:
- mapperlocation:
+ mapperlocation: com.trendy.task.transport.mapper
 
 spring:
   datasource:

@@ -64,11 +64,8 @@ public class FieldHandler extends AbstractSqlParserHandler implements Intercepto
         Boolean select = mappedStatement.getSqlCommandType().equals(SqlCommandType.SELECT);
         if (!select) {
             //通过获取mapper名称从缓存类中获取对应的注解
-            String source = mappedStatement.getId();
-            int end = source.lastIndexOf(".") + 1;
-            String mapper = source.substring(0, end - 1);
-            mapper = mapper.substring(mapper.lastIndexOf(".") + 1);
-            TranDB tranDB = mapperAuxFeatureMap.mapperTranDbMap.get(mapper);
+            String mapperName = MapperAuxFeatureMap.getMapperNameFromMethodName(mappedStatement.getId());
+            TranDB tranDB = mapperAuxFeatureMap.mapperTranDbMap.get(mapperName);
            //获取类的所有属性
             Class clazz = tranDB.object();
             Map<String, Field> mapField = new HashMap<>(clazz.getFields().length);

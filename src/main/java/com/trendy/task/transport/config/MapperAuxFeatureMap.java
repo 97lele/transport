@@ -36,6 +36,14 @@ public class MapperAuxFeatureMap implements ResourceLoaderAware, InitializingBea
     //mapper文件的注解
     public  Map<String, TranDB> mapperTranDbMap;
 
+    //通过方法获取mapper名称
+    public static String getMapperNameFromMethodName(String source){
+        int end = source.lastIndexOf(".") + 1;
+        String mapper = source.substring(0, end - 1);
+        mapper = mapper.substring(mapper.lastIndexOf(".") + 1);
+        return mapper;
+    }
+
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
        MapperAuxFeatureMap.resourceLoader=resourceLoader;
